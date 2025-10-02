@@ -5,6 +5,8 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const http = require("http");
 const { Server } = require("socket.io");
+const axios = require("axios");
+
 require('dotenv').config()
 const indexRouter = require("./routes/index");
 
@@ -37,49 +39,54 @@ io.on("connection", (socket) => {
     history.push({ role: "user", content: message });
 
     try {
-      // Thay thế bằng fetch từ built-in module (Node.js 18+)
-      const response = await fetch("http://localhost:11434/api/chat", {
-        method: "POST",
+    const response = await axios.post(
+      "http://localhost:11434/api/chat",
+      {
+        model: "gpt-oss:20b-cloud",
+        stream: true,
+        messages: history,
+      },
+      {
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "gpt-oss:20b-cloud",
-          stream: true,
-          messages: history,
-        }),
-      });
+        responseType: "stream", // bắt buộc để axios trả về stream
+      }
+    );
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let botReply = "";
+    let botReply = "";
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+    response.data.on("data", (chunk) => {
+      const text = chunk.toString();
+      const lines = text.split("\n").filter(Boolean);
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n").filter(Boolean);
-
-        for (const line of lines) {
-          try {
-            const data = JSON.parse(line);
-            if (data.message?.content) {
-              socket.emit("botMessage", data.message.content);
-              botReply += data.message.content;
-            }
-          } catch (err) {
-            console.error("Parse error:", err);
+      for (const line of lines) {
+        try {
+          const data = JSON.parse(line);
+          if (data.message?.content) {
+            socket.emit("botMessage", data.message.content);
+            botReply += data.message.content;
           }
+        } catch (err) {
+          console.error("Parse error:", err);
         }
       }
+    });
 
+    response.data.on("end", () => {
       history.push({ role: "assistant", content: botReply });
       userHistories.set(socket.id, history);
       socket.emit("botEnd");
-    } catch (error) {
-      console.error("Error fetching AI model:", error);
-      socket.emit("botMessage", "Lỗi gọi model AI!");
+    });
+
+    response.data.on("error", (err) => {
+      console.error("Stream error:", err);
+      socket.emit("botMessage", "Lỗi khi đọc stream!");
       socket.emit("botEnd");
-    }
+    });
+  } catch (error) {
+    console.error("Error fetching AI model:", error);
+    socket.emit("botMessage", "Lỗi gọi modessl AI!");
+    socket.emit("botEnd");
+  }
   });
 
   socket.on("disconnect", () => {

@@ -1,0 +1,78 @@
+body {
+    font-family: sans-serif;
+    padding: 20px;
+    background: #f4f4f4;
+}
+#chat {
+    border: 1px solid #ccc;
+    padding: 10px;
+    height: 75vh;
+    overflow-y: auto;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 97.5%;
+}
+.user {
+    color: black;
+    margin: 5px 0;
+    align-self: flex-end;
+    max-width: 70%;
+    background-color: #e3f2fd;
+    padding: 8px 12px;
+    border-radius: 12px 12px 0 12px;
+}
+
+.bot {
+    color: black;
+    margin: 5px 0;
+    white-space: pre-line;
+    align-self: flex-start;
+    max-width: 70%;
+    background-color: #f5f5f5;
+    padding: 8px 12px;
+    border-radius: 12px 12px 12px 0;
+}
+#msg {
+    margin-top: 10px;
+    width: 97.5%;
+    padding: 12px;
+}
+
+.loading-text {
+    display: flex; /* To arrange letters horizontally */
+    justify-content: start;
+    align-items: start;
+    width: 20px;
+    background-color: #f5f5f5;
+    padding: 8px 12px;
+    border-radius: 12px 12px 12px 0;
+}
+
+.letter {
+    display: inline-block; /* To allow transformations */
+}
+.letter {
+    animation: bounce 1s infinite alternate; /* Apply the bounce animation */
+}
+
+.letter:nth-child(1) {
+    animation-delay: 0s;
+}
+.letter:nth-child(2) {
+    animation-delay: 0.1s;
+}
+.letter:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+@keyframes bounce {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}

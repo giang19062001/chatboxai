@@ -1,0 +1,80 @@
+<section>
+    <h2>Chatbox</h2>
+    <div id="chat"></div>
+    <input id="msg" placeholder="Enter your question..." />
+
+    <script>
+        const socket = io("http://localhost:3592");
+        const chatBox = document.getElementById("chat");
+        const input = document.getElementById("msg");
+
+        function appendMessage(role, text) {
+            const div = document.createElement("div");
+            div.className = role;
+            div.textContent = `${role === "user" ? `` : ""} ${text}`;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
+        });
+        function sendMessage() {
+            const msg = input.value;
+            if (!msg) return;
+            appendMessage("user", msg);
+            input.value = "";
+
+            socket.emit("chatMessage", msg);
+
+            // Tạo loading indicator
+            const loadingDiv = document.createElement("div");
+            loadingDiv.className = "loading-text";
+            loadingDiv.id = "loading";
+
+            // Thêm các dấu chấm với hiệu ứng
+            for (let i = 0; i < 3; i++) {
+                const span = document.createElement("span");
+                span.className = "letter";
+                span.textContent = ".";
+                loadingDiv.appendChild(span);
+            }
+
+            chatBox.appendChild(loadingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Tạo bot line nhưng ẩn đi cho đến khi có data
+            botLine = document.createElement("div");
+            botLine.className = "bot";
+            botLine.textContent = "";
+            botLine.style.display = "none"; // Ẩn ban đầu
+            chatBox.appendChild(botLine);
+        }
+
+        let botLine = null;
+
+        socket.on("botMessage", (chunk) => {
+            // Xóa loading indicator khi bắt đầu nhận data
+            const loadingElement = document.getElementById("loading");
+            if (loadingElement && chunk) {
+                loadingElement.remove();
+            }
+
+            if (botLine) {
+                // Hiển thị botLine khi có data đầu tiên
+                if (botLine.style.display === "none") {
+                    botLine.style.display = "block";
+                }
+
+                botLine.textContent += chunk;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        });
+
+        socket.on("botEnd", () => {
+            botLine = null;
+        });
+    </script>
+</section>

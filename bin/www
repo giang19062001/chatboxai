@@ -11,7 +11,7 @@ var debug = require('debug')('chatbox:server');
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3592');
+var port = normalizePort(process.env.PORT);
 
 /**
  * Listen on provided port, on all network interfaces.

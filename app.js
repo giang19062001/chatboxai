@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const http = require("http");
 const { Server } = require("socket.io");
-
+require('dotenv').config()
 const indexRouter = require("./routes/index");
 
 const app = express();

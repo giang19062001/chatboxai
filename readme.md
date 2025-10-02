@@ -40,3 +40,10 @@ sudo systemctl reload nginx
 
 
 
+
+
+
+# install enginear call ai model on local 
+curl -fsSL https://ollama.com/install.sh | sh
+
+=> ollama list

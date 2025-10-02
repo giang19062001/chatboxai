@@ -42,7 +42,7 @@ io.on("connection", (socket) => {
     const response = await axios.post(
       "http://localhost:11434/api/chat",
       {
-        model: "gpt-oss:20b-cloud",
+        model: "qwen2.5:0.5b",
         stream: true,
         messages: history,
       },

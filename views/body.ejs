@@ -4,7 +4,8 @@
     <input id="msg" placeholder="Enter your question..." />
 
     <script>
-        const socket = io("http://localhost:3592");
+        const URL = "<%= url %>";
+        const socket = io(URL);
         const chatBox = document.getElementById("chat");
         const input = document.getElementById("msg");
 
